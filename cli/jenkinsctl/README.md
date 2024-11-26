@@ -24,7 +24,7 @@ $ popd
 :three: Build the jenkinsctl
 
 ```
-$ git clone https://github.com/dougsland/jenkinsctl.git
+$ git clone https://github.com/dougsland/gojenkins/cli/jenkinsctl.git
 $ cd jenkinsctl
 $ make
 ```

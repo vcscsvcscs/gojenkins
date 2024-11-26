@@ -18,9 +18,10 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/dougsland/jenkinsctl/jenkins"
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
+	"github.com/vcscsvcscs/gojenkins/cli/jenkinsctl/jenkins"
 )
 
 // rootCmd represents the base command when called without any subcommands
