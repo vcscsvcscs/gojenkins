@@ -458,12 +458,12 @@ func (j *Job) InvokeSimple(ctx context.Context, params map[string]string) (int64
 	}
 
 	if resp.StatusCode != 200 && resp.StatusCode != 201 {
-		return 0, fmt.Errorf("Could not invoke job %q: %s", j.GetName(), resp.Status)
+		return 0, fmt.Errorf("could not invoke job %q: %s", j.GetName(), resp.Status)
 	}
 
 	location := resp.Header.Get("Location")
 	if location == "" {
-		return 0, errors.New("Don't have key \"Location\" in response of header")
+		return 0, errors.New("don't have key \"Location\" in response of header")
 	}
 
 	u, err := url.Parse(location)
@@ -493,7 +493,7 @@ func (j *Job) Invoke(ctx context.Context, files []string, skipIfRunning bool, pa
 		return false, err
 	}
 	if isRunning && skipIfRunning {
-		return false, fmt.Errorf("Will not request new build because %s is already running", j.GetName())
+		return false, fmt.Errorf("will not request new build because %s is already running", j.GetName())
 	}
 
 	base := "/build"

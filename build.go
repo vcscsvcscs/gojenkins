@@ -277,7 +277,7 @@ func (b *Build) GetCauses(ctx context.Context) ([]map[string]interface{}, error)
 			return a.Causes, nil
 		}
 	}
-	return nil, errors.New("No Causes")
+	return nil, errors.New("no Causes")
 }
 
 func (b *Build) GetParameters() []parameter {
@@ -365,7 +365,7 @@ func (b *Build) GetUpstreamJob(ctx context.Context) (*Job, error) {
 			return b.Jenkins.GetJob(ctx, job.(string))
 		}
 	}
-	return nil, errors.New("Unable to get Upstream Job")
+	return nil, errors.New("unable to get Upstream Job")
 }
 
 func (b *Build) GetUpstreamBuildNumber(ctx context.Context) (int64, error) {
@@ -397,7 +397,7 @@ func (b *Build) GetUpstreamBuild(ctx context.Context) (*Build, error) {
 			return job.GetBuild(ctx, buildNumber)
 		}
 	}
-	return nil, errors.New("Build not found")
+	return nil, errors.New("build not found")
 }
 
 func (b *Build) GetMatrixRuns(ctx context.Context) ([]*Build, error) {

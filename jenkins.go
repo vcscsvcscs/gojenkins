@@ -62,7 +62,7 @@ func (j *Jenkins) Init(ctx context.Context) (*Jenkins, error) {
 
 	j.Version = rsp.Header.Get("X-Jenkins")
 	if j.Raw == nil || rsp.StatusCode != http.StatusOK {
-		return nil, errors.New("Connection Failed, Please verify that the host and credentials are correct.")
+		return nil, errors.New("connection Failed, Please verify that the host and credentials are correct")
 	}
 
 	return j, nil
@@ -309,7 +309,7 @@ func (j *Jenkins) GetNode(ctx context.Context, name string) (*Node, error) {
 	if status == 200 {
 		return &node, nil
 	}
-	return nil, errors.New("No node found")
+	return nil, errors.New("no node found")
 }
 
 func (j *Jenkins) GetLabel(ctx context.Context, name string) (*Label, error) {
@@ -321,7 +321,7 @@ func (j *Jenkins) GetLabel(ctx context.Context, name string) (*Label, error) {
 	if status == 200 {
 		return &label, nil
 	}
-	return nil, errors.New("No label found")
+	return nil, errors.New("no label found")
 }
 
 func (j *Jenkins) GetBuild(ctx context.Context, jobName string, number int64) (*Build, error) {
@@ -489,7 +489,7 @@ func (j *Jenkins) UninstallPlugin(ctx context.Context, name string) error {
 	url := fmt.Sprintf("/pluginManager/plugin/%s/doUninstall", name)
 	resp, err := j.Requester.Post(ctx, url, strings.NewReader(""), struct{}{}, map[string]string{})
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("Invalid status code returned: %d", resp.StatusCode)
+		return fmt.Errorf("invalid status code returned: %d", resp.StatusCode)
 	}
 	return err
 }
@@ -505,13 +505,13 @@ func (j *Jenkins) HasPlugin(ctx context.Context, name string) (*Plugin, error) {
 	return p.Contains(name), nil
 }
 
-//InstallPlugin with given version and name
+// InstallPlugin with given version and name
 func (j *Jenkins) InstallPlugin(ctx context.Context, name string, version string) error {
 	xml := fmt.Sprintf(`<jenkins><install plugin="%s@%s" /></jenkins>`, name, version)
 	resp, err := j.Requester.PostXML(ctx, "/pluginManager/installNecessaryPlugins", xml, j.Raw, map[string]string{})
 
 	if resp.StatusCode != 200 {
-		return fmt.Errorf("Invalid status code returned: %d", resp.StatusCode)
+		return fmt.Errorf("invalid status code returned: %d", resp.StatusCode)
 	}
 	return err
 }
@@ -555,11 +555,13 @@ func (j *Jenkins) GetAllViews(ctx context.Context) ([]*View, error) {
 // First Parameter - name of the View
 // Second parameter - Type
 // Possible Types:
-// 		gojenkins.LIST_VIEW
-// 		gojenkins.NESTED_VIEW
-// 		gojenkins.MY_VIEW
-// 		gojenkins.DASHBOARD_VIEW
-// 		gojenkins.PIPELINE_VIEW
+//
+//	gojenkins.LIST_VIEW
+//	gojenkins.NESTED_VIEW
+//	gojenkins.MY_VIEW
+//	gojenkins.DASHBOARD_VIEW
+//	gojenkins.PIPELINE_VIEW
+//
 // Example: jenkins.CreateView("newView",gojenkins.LIST_VIEW)
 func (j *Jenkins) CreateView(ctx context.Context, name string, viewType string) (*View, error) {
 	view := &View{Jenkins: j, Raw: new(ViewResponse), Base: "/view/" + name}
@@ -598,9 +600,9 @@ func (j *Jenkins) Poll(ctx context.Context) (int, error) {
 // After creating an instance call init method.
 func CreateJenkins(client *http.Client, base string, auth ...interface{}) *Jenkins {
 	j := &Jenkins{}
-	if strings.HasSuffix(base, "/") {
-		base = base[:len(base)-1]
-	}
+
+	base = strings.TrimSuffix(base, "/")
+
 	j.Server = base
 	j.Requester = &Requester{Base: base, SslVerify: true, Client: client}
 	if j.Requester.Client == nil {

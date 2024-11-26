@@ -71,7 +71,7 @@ type PipelineArtifact struct {
 	Name string
 	Path string
 	URL  string
-	size int
+	// size int // unused
 }
 
 type PipelineNodeLog struct {

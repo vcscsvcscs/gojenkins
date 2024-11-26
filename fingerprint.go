@@ -70,7 +70,7 @@ func (f FingerPrint) ValidateForBuild(ctx context.Context, filename string, buil
 	}
 
 	if f.Raw.FileName != filename {
-		return false, errors.New("Filename does not Match")
+		return false, errors.New("filename does not Match")
 	}
 	if build != nil && f.Raw.Original.Name == build.Job.GetName() &&
 		f.Raw.Original.Number == build.GetBuildNumber() {

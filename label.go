@@ -26,7 +26,7 @@ type MODE string
 
 const (
 	NORMAL    MODE = "NORMAL"
-	EXCLUSIVE      = "EXCLUSIVE"
+	EXCLUSIVE MODE = "EXCLUSIVE"
 )
 
 type LabelNode struct {
