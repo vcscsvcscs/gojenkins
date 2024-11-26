@@ -127,7 +127,7 @@ func (j *Job) GetBuild(ctx context.Context, id int64) (*Build, error) {
 	// "https://<domain>/jenkins/" is the server URL,
 	// we are expecting jobURL = "job/JOB1"
 	jobURL := strings.Replace(j.Raw.URL, j.Jenkins.Server, "", -1)
-	build := Build{Jenkins: j.Jenkins, Job: j, Raw: new(BuildResponse), Depth: 1, Base: jobURL + "/" + strconv.FormatInt(id, 10)}
+	build := Build{Jenkins: j.Jenkins, Job: j, Raw: new(BuildResponse), Depth: 1, Base: jobURL + strconv.FormatInt(id, 10)}
 	status, err := build.Poll(ctx)
 	if err != nil {
 		return nil, err
@@ -194,7 +194,7 @@ func (j *Job) GetLastCompletedBuild(ctx context.Context) (*Build, error) {
 }
 
 func (j *Job) GetBuildsFields(ctx context.Context, fields []string, custom interface{}) error {
-	if fields == nil || len(fields) == 0 {
+	if len(fields) < 1 {
 		return fmt.Errorf("one or more field value needs to be specified")
 	}
 	// limit overhead using builds instead of allBuilds, which returns the last 100 build
@@ -348,8 +348,10 @@ func (j *Job) Copy(ctx context.Context, destinationName string) (*Job, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		return newJob, nil
 	}
+
 	return nil, errors.New(strconv.Itoa(resp.StatusCode))
 }
 
@@ -375,6 +377,7 @@ func (j *Job) GetConfig(ctx context.Context) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	return data, nil
 }
 
@@ -383,10 +386,12 @@ func (j *Job) GetParameters(ctx context.Context) ([]ParameterDefinition, error) 
 	if err != nil {
 		return nil, err
 	}
+
 	var parameters []ParameterDefinition
 	for _, property := range j.Raw.Property {
 		parameters = append(parameters, property.ParameterDefinitions...)
 	}
+
 	return parameters, nil
 }
 
@@ -394,6 +399,7 @@ func (j *Job) IsQueued(ctx context.Context) (bool, error) {
 	if _, err := j.Poll(ctx); err != nil {
 		return false, err
 	}
+
 	return j.Raw.InQueue, nil
 }
 
@@ -401,10 +407,12 @@ func (j *Job) IsRunning(ctx context.Context) (bool, error) {
 	if _, err := j.Poll(ctx); err != nil {
 		return false, err
 	}
+
 	lastBuild, err := j.GetLastBuild(ctx)
 	if err != nil {
 		return false, err
 	}
+
 	return lastBuild.IsRunning(ctx), nil
 }
 
@@ -412,6 +420,7 @@ func (j *Job) IsEnabled(ctx context.Context) (bool, error) {
 	if _, err := j.Poll(ctx); err != nil {
 		return false, err
 	}
+
 	return j.Raw.Color != "disabled", nil
 }
 
@@ -437,10 +446,12 @@ func (j *Job) InvokeSimple(ctx context.Context, params map[string]string) (int64
 	if len(parameters) > 0 {
 		endpoint = "/buildWithParameters"
 	}
+
 	data := url.Values{}
 	for k, v := range params {
 		data.Set(k, v)
 	}
+
 	resp, err := j.Jenkins.Requester.Post(ctx, j.Base+endpoint, bytes.NewBufferString(data.Encode()), nil, nil)
 	if err != nil {
 		return 0, err
