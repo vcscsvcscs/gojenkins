@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
-	"net/http"
 	"os"
 	"path/filepath"
 
@@ -180,16 +179,12 @@ func (j *Jenkins) ShowStatus(object string) {
 	switch object {
 	case "blue":
 		fmt.Printf("Status: ✅ Success\n")
-		break
 	case "red":
 		fmt.Printf("Status: ❌ Failed\n")
-		break
 	case "red_anime", "blue_anime", "yellow_anime", "gray_anime", "notbuild_anime":
 		fmt.Printf("Status: ⏳ In Progress\n")
-		break
 	case "notbuilt":
 		fmt.Printf("Status: 🚧 Not Build\n")
-		break
 	default:
 		if len(object) > 0 {
 			fmt.Printf("Status: %s\n", object)
@@ -591,23 +586,4 @@ func (j *Jenkins) ServerInfo() error {
 	fmt.Printf("✅ Version: %s\n", j.Instance.Version)
 
 	return nil
-}
-
-// serverReachable will do validation if the jenkins server
-// is reachable
-//
-// Args:
-//
-//	string - Jenkins url
-//
-// Returns
-//
-//	nil or error
-func serverReachable(url string) error {
-	_, err := http.Get(url)
-	if err != nil {
-		return err
-	}
-	return nil
-
 }
