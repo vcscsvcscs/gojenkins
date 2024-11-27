@@ -21,7 +21,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
-	"github.com/vcscsvcscs/gojenkins/cli/jenkinsctl/jenkins"
+	jenkins "github.com/vcscsvcscs/gojenkins/cli/jenkinsctl/jenkins"
 )
 
 // rootCmd represents the base command when called without any subcommands
