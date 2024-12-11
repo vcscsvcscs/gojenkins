@@ -265,6 +265,57 @@ func (r *Requester) Do(ctx context.Context, ar *APIRequest, responseStruct inter
 	}
 }
 
+func (r *Requester) DoStream(ctx context.Context, ar *APIRequest, options ...map[string]string) (io.ReadCloser, error) {
+	if !strings.HasSuffix(ar.Endpoint, "/") && ar.Method != "POST" {
+		ar.Endpoint += "/"
+	}
+
+	URL, err := url.Parse(r.Base + ar.Endpoint + ar.Suffix)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, o := range options {
+		querystring := make(url.Values)
+		for key, val := range o {
+			querystring.Set(key, val)
+		}
+
+		URL.RawQuery = querystring.Encode()
+	}
+
+	req, err := http.NewRequestWithContext(ctx, ar.Method, URL.String(), ar.Payload)
+	if err != nil {
+		return nil, err
+	}
+
+	if r.BasicAuth != nil {
+		req.SetBasicAuth(r.BasicAuth.Username, r.BasicAuth.Password)
+	}
+
+	for k := range ar.Headers {
+		req.Header.Add(k, ar.Headers.Get(k))
+	}
+	if response, err := r.Client.Do(req); err != nil {
+		return nil, err
+	} else {
+		if v := ctx.Value("debug"); v != nil {
+			dump, err := httputil.DumpResponse(response, true)
+			if err != nil {
+				log.Fatal(err)
+			}
+			log.Printf("DEBUG %q\n", dump)
+		}
+
+		errorText := response.Header.Get("X-Error")
+		if errorText != "" {
+			return nil, errors.New(errorText)
+		}
+
+		return response.Body, nil
+	}
+}
+
 func (r *Requester) ReadRawResponse(response *http.Response, responseStruct interface{}) (*http.Response, error) {
 	defer response.Body.Close()
 
