@@ -19,6 +19,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -408,7 +409,7 @@ func (j *Jenkins) GetAllBuildIds(ctx context.Context, job string) ([]JobBuild, e
 // Get Only Array of Job Names, Color, URL
 // Does not query each single Job.
 func (j *Jenkins) GetAllJobNames(ctx context.Context) ([]InnerJob, error) {
-	exec := Executor{Raw: new(ExecutorResponse), Jenkins: j}
+	exec := Executor{Raw: new(ExecutorResponse)}
 	_, err := j.Requester.GetJSON(ctx, "/", exec.Raw, nil)
 
 	if err != nil {
@@ -421,7 +422,7 @@ func (j *Jenkins) GetAllJobNames(ctx context.Context) ([]InnerJob, error) {
 // Get All Possible Job Objects.
 // Each job will be queried.
 func (j *Jenkins) GetAllJobs(ctx context.Context) ([]*Job, error) {
-	exec := Executor{Raw: new(ExecutorResponse), Jenkins: j}
+	exec := Executor{Raw: new(ExecutorResponse)}
 	_, err := j.Requester.GetJSON(ctx, "/", exec.Raw, nil)
 
 	if err != nil {
@@ -471,6 +472,14 @@ func (j *Jenkins) getQueueItemURL(id int64) string {
 func (j *Jenkins) GetArtifactData(ctx context.Context, id string) (*FingerPrintResponse, error) {
 	fp := FingerPrint{Jenkins: j, Base: "/fingerprint/", Id: id, Raw: new(FingerPrintResponse)}
 	return fp.GetInfo(ctx)
+}
+
+// Get Artifact stream
+func (j *Jenkins) GetArtifactStream(ctx context.Context, path string) (io.ReadCloser, error) {
+	ar := NewAPIRequest("GET", path, nil)
+	ar.Suffix = ""
+
+	return j.Requester.DoStream(ctx, ar)
 }
 
 // Returns the list of all plugins installed on the Jenkins server.
@@ -564,7 +573,7 @@ func (j *Jenkins) GetAllViews(ctx context.Context) ([]*View, error) {
 //
 // Example: jenkins.CreateView("newView",gojenkins.LIST_VIEW)
 func (j *Jenkins) CreateView(ctx context.Context, name string, viewType string) (*View, error) {
-	view := &View{Jenkins: j, Raw: new(ViewResponse), Base: "/view/" + name}
+	view := &View{Raw: new(ViewResponse)}
 	endpoint := "/createView"
 	data := map[string]string{
 		"name":   name,
