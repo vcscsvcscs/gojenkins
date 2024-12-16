@@ -265,14 +265,14 @@ func (r *Requester) Do(ctx context.Context, ar *APIRequest, responseStruct inter
 	}
 }
 
-func (r *Requester) DoStream(ctx context.Context, ar *APIRequest, options ...map[string]string) (io.ReadCloser, error) {
+func (r *Requester) DoStream(ctx context.Context, ar *APIRequest, options ...map[string]string) (io.ReadCloser, int, error) {
 	if !strings.HasSuffix(ar.Endpoint, "/") && ar.Method != "POST" {
 		ar.Endpoint += "/"
 	}
 
 	URL, err := url.Parse(r.Base + ar.Endpoint + ar.Suffix)
 	if err != nil {
-		return nil, err
+		return nil, -1, err
 	}
 
 	for _, o := range options {
@@ -286,7 +286,7 @@ func (r *Requester) DoStream(ctx context.Context, ar *APIRequest, options ...map
 
 	req, err := http.NewRequestWithContext(ctx, ar.Method, URL.String(), ar.Payload)
 	if err != nil {
-		return nil, err
+		return nil, -1, err
 	}
 
 	if r.BasicAuth != nil {
@@ -297,7 +297,7 @@ func (r *Requester) DoStream(ctx context.Context, ar *APIRequest, options ...map
 		req.Header.Add(k, ar.Headers.Get(k))
 	}
 	if response, err := r.Client.Do(req); err != nil {
-		return nil, err
+		return nil, -1, err
 	} else {
 		if v := ctx.Value("debug"); v != nil {
 			dump, err := httputil.DumpResponse(response, true)
@@ -309,10 +309,10 @@ func (r *Requester) DoStream(ctx context.Context, ar *APIRequest, options ...map
 
 		errorText := response.Header.Get("X-Error")
 		if errorText != "" {
-			return nil, errors.New(errorText)
+			return nil, response.StatusCode, errors.New(errorText)
 		}
 
-		return response.Body, nil
+		return response.Body, response.StatusCode, nil
 	}
 }
 

@@ -56,6 +56,7 @@ func (f FingerPrint) Valid(ctx context.Context) (bool, error) {
 	if status != 200 || f.Raw.Hash != f.Id {
 		return false, fmt.Errorf("Jenkins says %s is Invalid or the Status is unknown", f.Id)
 	}
+
 	return true, nil
 }
 

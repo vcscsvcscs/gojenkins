@@ -479,7 +479,12 @@ func (j *Jenkins) GetArtifactStream(ctx context.Context, path string) (io.ReadCl
 	ar := NewAPIRequest("GET", path, nil)
 	ar.Suffix = ""
 
-	return j.Requester.DoStream(ctx, ar)
+	stream, respCode, err := j.Requester.DoStream(ctx, ar)
+	if respCode < 200 || respCode >= 300 {
+		return nil, fmt.Errorf("invalid status code returned: %d", respCode)
+	}
+
+	return stream, err
 }
 
 // Returns the list of all plugins installed on the Jenkins server.
@@ -511,6 +516,7 @@ func (j *Jenkins) HasPlugin(ctx context.Context, name string) (*Plugin, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return p.Contains(name), nil
 }
 
@@ -522,6 +528,7 @@ func (j *Jenkins) InstallPlugin(ctx context.Context, name string, version string
 	if resp.StatusCode != 200 {
 		return fmt.Errorf("invalid status code returned: %d", resp.StatusCode)
 	}
+
 	return err
 }
 
@@ -529,13 +536,11 @@ func (j *Jenkins) InstallPlugin(ctx context.Context, name string, version string
 func (j *Jenkins) ValidateFingerPrint(ctx context.Context, id string) (bool, error) {
 	fp := FingerPrint{Jenkins: j, Base: "/fingerprint/", Id: id, Raw: new(FingerPrintResponse)}
 	valid, err := fp.Valid(ctx)
-	if err != nil {
-		return false, err
-	}
-	if valid {
+	if valid && err == nil {
 		return true, nil
 	}
-	return false, nil
+
+	return false, err
 }
 
 func (j *Jenkins) GetView(ctx context.Context, name string) (*View, error) {
