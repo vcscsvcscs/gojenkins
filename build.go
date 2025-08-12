@@ -109,6 +109,7 @@ type BuildResponse struct {
 		DisplayPath  string `json:"displayPath"`
 		FileName     string `json:"fileName"`
 		RelativePath string `json:"relativePath"`
+		Size         int    `json:"size"`
 	} `json:"artifacts"`
 	Building  bool   `json:"building"`
 	BuiltOn   string `json:"builtOn"`
@@ -217,8 +218,10 @@ func (b *Build) GetArtifacts() []Artifact {
 			Build:    b,
 			FileName: artifact.FileName,
 			Path:     b.Base + "/artifact/" + artifact.RelativePath,
+			Size:     artifact.Size,
 		}
 	}
+
 	return artifacts
 }
 
